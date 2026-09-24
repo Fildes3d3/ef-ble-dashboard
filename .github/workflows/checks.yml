@@ -1,0 +1,41 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # The BLE protocol library is cloned at setup rather than pinned, so upstream
+    # can change under us. A weekly run notices that before a user's van does.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Fetch the BLE protocol library
+        run: bash scripts/bootstrap_eflib.sh
+
+      # Deliberately the same entry point a developer runs, so CI and local
+      # cannot drift apart.
+      - name: Checks
+        run: bash scripts/check.sh

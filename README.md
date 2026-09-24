@@ -1,5 +1,7 @@
 # EF BLE Dashboard
 
+[![checks](https://github.com/Fildes3d3/ef-ble-dashboard/actions/workflows/checks.yml/badge.svg)](https://github.com/Fildes3d3/ef-ble-dashboard/actions/workflows/checks.yml)
+
 A local-first dashboard for the EcoFlow DELTA 2 and Alternator Charger, read over Bluetooth LE. No cloud account, no vendor app, no data leaving your network.
 
 A private, local-first web dashboard for the tested DELTA 2 BLE connection. The dashboard has its own password form; it never collects or stores an EcoFlow email address or password.
