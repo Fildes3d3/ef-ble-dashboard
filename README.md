@@ -4,6 +4,8 @@
 
 A local-first dashboard for the EcoFlow DELTA 2 (with its extra batteries) and the Alternator Charger, read and controlled over Bluetooth LE. No cloud connection at runtime, no vendor app, no data leaving your network.
 
+![The DC to DC tab: charge state, vehicle and pack side, and the adjustable limits](docs/img/dc-to-dc.png)
+
 The dashboard has its own password form; it never collects or stores an EcoFlow email address or password.
 
 Sign-in is rate limited: five wrong passwords are tolerated, after which the source is
