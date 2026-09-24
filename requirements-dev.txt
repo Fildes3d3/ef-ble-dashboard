@@ -1,0 +1,7 @@
+# Development and test dependencies. Runtime needs none of these.
+#   .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+ruff==0.16.8
+pytest==9.1.1
+pytest-asyncio==1.4.0
+# starlette's TestClient is built on httpx; the app itself does not use it.
+httpx==0.28.1

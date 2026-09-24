@@ -37,6 +37,13 @@ cp .env.example .env
 python scripts/generate_secret.py
 ```
 
+To run the tests and linter as well:
+
+```sh
+.venv/bin/pip install -r requirements-dev.txt
+bash scripts/check.sh
+```
+
 Set the printed random value as `APP_SESSION_SECRET` in `.env`. Leaving it empty makes every login fail with a 503, because the dashboard refuses to issue session cookies it cannot sign. Choose a distinct `APP_ADMIN_PASSWORD`. Set `ECOFLOW_USER_ID` to the numeric User ID printed during the successful one-time EcoFlow authentication test, The collector finds each unit by the serial number in its Bluetooth advertisement rather than by name, so renaming a device in the EcoFlow app will not break discovery. DELTA 2 serials begin `R331`; the Alternator Charger's begin `R371`. Nothing about your particular units needs to go in `.env`.
 
 The app intentionally needs the User ID only. It does not need or retain your EcoFlow password after the initial test.

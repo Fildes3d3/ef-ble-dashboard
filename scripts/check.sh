@@ -17,6 +17,12 @@ if [ -z "$node_bin" ] || [ "$(node_major "$node_bin")" -lt 18 ]; then
   exit 1
 fi
 
+if [ ! -x .venv/bin/ruff ] || [ ! -x .venv/bin/pytest ]; then
+  echo "check.sh: dev tools missing. Run:" >&2
+  echo "  .venv/bin/pip install -r requirements-dev.txt" >&2
+  exit 1
+fi
+
 echo "== ruff =="
 .venv/bin/ruff check .
 echo "== pytest =="
