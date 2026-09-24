@@ -1,0 +1,17 @@
+.env
+.venv/
+data/
+vendor/
+__pycache__/
+*.py[cod]
+
+# Generated locally, with absolute paths baked in.
+tools/
+node_modules/
+.pytest_cache/
+.ruff_cache/
+
+# Editor and OS state
+.idea/
+.vscode/
+.DS_Store

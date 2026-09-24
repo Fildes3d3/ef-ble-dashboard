@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoFlow Local</title>
+    <link rel="stylesheet" href="/static/styles.css?v=__ASSETS__" />
+  </head>
+  <body>
+    <main class="shell">
+      <section id="login-view" class="login-view">
+        <div class="brand-mark">ϟ</div>
+        <p class="eyebrow">LOCAL POWER MONITOR</p>
+        <h1>Your van, in view.</h1>
+        <p class="lede">A private dashboard for your EcoFlow DELTA 2, directly over Bluetooth.</p>
+        <form id="login-form" class="login-card">
+          <label for="password">Dashboard password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+          <button type="submit">Unlock dashboard <span>→</span></button>
+          <p id="login-error" class="form-error" role="alert"></p>
+        </form>
+        <p class="privacy-note">This form unlocks this dashboard only. It never asks for your EcoFlow password.</p>
+      </section>
+
+      <section id="dashboard-view" class="dashboard-view" hidden>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">ECOFLOW LOCAL</p>
+            <nav class="tabs" id="tabs" aria-label="Devices">
+              <button class="tab is-active" data-device="delta2" aria-current="page">DELTA 2</button>
+              <button class="tab" data-device="alternator">DC to DC</button>
+            </nav>
+          </div>
+          <div class="topbar-actions"><span id="connection-pill" class="connection-pill">Checking connection</span><button id="logout-button" class="quiet-button">Log out</button></div>
+        </header>
+
+        <div id="panel-delta2">
+        <section class="hero-grid">
+          <article class="battery-card">
+            <div class="battery-ring"><span id="battery-level">—</span><small>%</small></div>
+            <div><p class="card-label">Battery level</p><h2 id="battery-message">Waiting for telemetry</h2><p id="battery-meta" class="muted">Local Bluetooth connection</p></div>
+          </article>
+          <article class="flow-card">
+            <div class="flow-head"><p class="card-label">Power flow</p><button id="refresh-button" class="refresh-button">Refresh</button></div>
+            <div class="flow-row"><span>Solar / XT60</span><strong id="solar-power">—</strong></div>
+            <div class="flow-row"><span>AC input</span><strong id="ac-input-power">—</strong></div>
+            <div class="flow-row output"><span>Power out</span><strong id="output-power">—</strong></div>
+          </article>
+        </section>
+
+        <section class="metric-grid">
+          <article><p>All input</p><strong id="input-power">—</strong><span>watts</span></article>
+          <article><p>Battery voltage</p><strong id="battery-voltage">—</strong><span>volts</span></article>
+          <article><p>Time left</p><strong id="time-left">—</strong><span>at current load</span></article>
+          <article><p>Charge estimate</p><strong id="charge-time">—</strong><span>at current input</span></article>
+        </section>
+
+        <section id="detail-grid" class="detail-grid"></section>
+
+        <section class="chart-card">
+          <div><p class="card-label" id="chart-range">RECENT HISTORY</p><h2>Power history</h2></div>
+          <canvas id="power-chart" aria-label="Power history chart"></canvas>
+          <div class="legend"><span><i class="legend-dot solar"></i>Input</span><span><i class="legend-dot output-dot"></i>Output</span></div>
+        </section>
+        </div>
+
+        <div id="panel-alternator" hidden>
+          <section class="hero-grid">
+            <article class="battery-card">
+              <div class="battery-ring"><span id="alt-battery-level">—</span><small>%</small></div>
+              <div><p class="card-label">Pack level</p><h2 id="alt-mode">Waiting for telemetry</h2><p id="alt-meta" class="muted">Charger on the XT150 port</p></div>
+            </article>
+            <article class="flow-card">
+              <div class="flow-head"><p class="card-label">DC to DC flow</p><button id="alt-refresh-button" class="refresh-button">Refresh</button></div>
+              <div class="flow-row"><span>Charge power</span><strong id="alt-dc-power">—</strong></div>
+              <div class="flow-row"><span>Vehicle battery</span><strong id="alt-car-voltage">—</strong></div>
+              <div class="flow-row output"><span>Start threshold</span><strong id="alt-start-voltage">—</strong></div>
+            </article>
+          </section>
+          <section id="alt-detail-grid" class="detail-grid"></section>
+          <section class="chart-card">
+            <div><p class="card-label" id="alt-chart-range">RECENT HISTORY</p><h2>Charge history</h2></div>
+            <canvas id="alt-power-chart" aria-label="Charge history chart"></canvas>
+            <div class="legend"><span><i class="legend-dot solar"></i>Charge power</span></div>
+          </section>
+        </div>
+
+        <p id="status-note" class="status-note"></p>
+      </section>
+    </main>
+    <script type="module" src="/static/js/main.js?v=__ASSETS__"></script>
+  </body>
+</html>

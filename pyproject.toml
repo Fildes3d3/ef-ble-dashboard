@@ -1,0 +1,43 @@
+[project]
+name = "ef-ble-dashboard"
+version = "1.0.0"
+description = "Local-first Bluetooth telemetry dashboard for EcoFlow DELTA 2 and Alternator Charger"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Adrian Bogdan Pop" }]
+readme = "README.md"
+
+[tool.ruff]
+line-length = 90
+target-version = "py313"
+# Vendored third-party protocol library; not ours to lint or fix.
+extend-exclude = ["vendor", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # import sorting
+    "UP",        # pyupgrade - keep modern syntax
+    "B",         # bugbear - real bug patterns
+    "SIM",       # simplifiable code
+    "ASYNC",     # asyncio mistakes, which this app is full of opportunities for
+    "RUF",
+]
+ignore = [
+    "E501",      # line length is handled by the formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]   # asserts are the point
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = [
+    # Warnings are errors: this is what caught an unclosed SQLite connection.
+    "error",
+    # Except third-party ones we cannot fix: starlette's TestClient reaches for a
+    # deprecated anyio alias.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+]

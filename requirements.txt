@@ -1,0 +1,9 @@
+fastapi==0.128.0
+itsdangerous==2.2.0
+uvicorn[standard]==0.40.0
+bleak==2.1.1
+bleak-retry-connector==4.4.4
+bluetooth-adapters==0.21.0
+ecdsa==0.19.1
+protobuf==6.33.4
+pycryptodome==3.23.0
