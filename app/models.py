@@ -12,8 +12,9 @@ class Snapshot:
     """Every value the DELTA 2 reports that is worth keeping over time.
 
     Field names match the eflib device attributes so the collector can map them
-    automatically; FIELD_SOURCES holds the only exceptions. Adding a field here is
-    enough - the SQLite schema, the migration and the insert all follow from it.
+    automatically; each DeviceKind's `sources` map in app/devices.py holds the only
+    exceptions. Adding a field here is enough - the SQLite schema, the migration and
+    the insert all follow from it.
     """
 
     timestamp: str
