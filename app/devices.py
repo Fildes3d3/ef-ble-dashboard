@@ -22,8 +22,7 @@ DELTA2 = DeviceKind(
         "dc_input_voltage",
         "ac_output_voltage",
     ),
-    # Only these three ports are writable; charge limits and charging speed stay
-    # read-only even though the protocol library exposes them.
+    # The writable settings. Grid bypass is deliberately left out (see below).
     controls={
         "ac_ports": Control("ac_ports", "enable_ac_ports", "switch", "AC outlets"),
         "usb_ports": Control("usb_ports", "enable_usb_ports", "switch", "USB ports"),
