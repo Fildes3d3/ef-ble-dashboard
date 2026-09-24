@@ -2,9 +2,9 @@
 
 [![checks](https://github.com/Fildes3d3/ef-ble-dashboard/actions/workflows/checks.yml/badge.svg)](https://github.com/Fildes3d3/ef-ble-dashboard/actions/workflows/checks.yml)
 
-A local-first dashboard for the EcoFlow DELTA 2 and Alternator Charger, read over Bluetooth LE. No cloud account, no vendor app, no data leaving your network.
+A local-first dashboard for the EcoFlow DELTA 2 (with its extra batteries) and the Alternator Charger, read and controlled over Bluetooth LE. No cloud connection at runtime, no vendor app, no data leaving your network.
 
-A private, local-first web dashboard for the tested DELTA 2 BLE connection. The dashboard has its own password form; it never collects or stores an EcoFlow email address or password.
+The dashboard has its own password form; it never collects or stores an EcoFlow email address or password.
 
 Sign-in is rate limited: five wrong passwords are tolerated, after which the source is
 locked out for a period that doubles with each further attempt, up to an hour. The
@@ -13,7 +13,7 @@ guess. Behind a reverse proxy, configure the proxy and Uvicorn's
 `--forwarded-allow-ips` together - the guard keys on the immediate peer, and without
 that every visitor shares one bucket.
 
-It is read-only except for three port switches - AC outlets, USB ports and the 12V port - which can be toggled from the dashboard. Anyone who knows the dashboard password can therefore switch power in the van, so choose a strong one and keep the service on a trusted network.
+It does not only read: on the DELTA 2 it can switch the AC outlets, USB ports and 12V port, turn AC charging on or off and set its speed, and change the charge limits and energy backup; on the Alternator Charger it can change all seven settings. Grid bypass stays read-only. Anyone who knows the dashboard password can therefore switch power and change charging in the van, so choose a strong one and keep the service on a trusted network.
 
 ## Architecture
 
@@ -46,9 +46,13 @@ To run the tests and linter as well:
 bash scripts/check.sh
 ```
 
-Set the printed random value as `APP_SESSION_SECRET` in `.env`. Leaving it empty makes every login fail with a 503, because the dashboard refuses to issue session cookies it cannot sign. Choose a distinct `APP_ADMIN_PASSWORD`. Set `ECOFLOW_USER_ID` to the numeric User ID printed during the successful one-time EcoFlow authentication test, The collector finds each unit by the serial number in its Bluetooth advertisement rather than by name, so renaming a device in the EcoFlow app will not break discovery. DELTA 2 serials begin `R331`; the Alternator Charger's begin `R371`. Nothing about your particular units needs to go in `.env`.
+Set the printed random value as `APP_SESSION_SECRET` in `.env`. Leaving it empty makes every login fail with a 503, because the dashboard refuses to issue session cookies it cannot sign. Choose a distinct `APP_ADMIN_PASSWORD`. Set `ECOFLOW_USER_ID` to your numeric EcoFlow User ID (see below). The collector finds each unit by the serial number in its Bluetooth advertisement rather than by name, so renaming a device in the EcoFlow app will not break discovery. DELTA 2 serials begin `R331` or `R335`; the Alternator Charger's begin `F371`, `F372` or `DC01`. Nothing about your particular units needs to go in `.env`.
 
-The app intentionally needs the User ID only. It does not need or retain your EcoFlow password after the initial test.
+### Getting your EcoFlow User ID
+
+The units only accept a Bluetooth connection authenticated with the numeric User ID of the EcoFlow account they are bound to, so each unit must first be bound to your account in the EcoFlow app.
+
+This project does not fetch the User ID for you, and never asks for your EcoFlow password. The upstream [ha-ef-ble](https://github.com/rabits/ha-ef-ble) Home Assistant integration can retrieve it through its login form during setup. However you obtain it, don't hand your EcoFlow credentials to a tool or site you don't trust.
 
 ## Start the server
 
@@ -140,7 +144,7 @@ listed as separate rows: the slider already shows them at either end.
 `dc_power` on the charger is **bidirectional**. Positive means the alternator is charging
 the DELTA 2; negative means the charger is pushing power the other way, topping up the
 vehicle's starter battery from the DELTA 2. In Battery maintenance mode with the charger
-enabled and the engine off, expect a negative figure - measured at -26 to -33 W on this
+enabled and the engine off, expect a negative figure - between -26 and -44 W observed on this
 van, matching the DELTA 2's own reported output at the same moment. The charts scale across
 the full range with a dashed zero line so the direction is visible.
 
@@ -175,8 +179,8 @@ rather than the raw flag.
 The collector samples locally every 15 seconds by default: it connects to the DELTA 2, collects authenticated telemetry, and then disconnects. Bluetooth discovery costs a fixed 10 seconds, so the device handle is kept after the first successful connection and reused; a stale handle (the unit slept, moved out of range, or the OS dropped it) falls back to one full scan automatically. That takes a cycle from about 38 seconds to about 18. Commands go through `POST /api/control/{name}` with a `{"value": ...}` body. The endpoint
 rejects any name that is not a declared control with a 404, and an out-of-range value with a
 400 - checked against the last reading first, so a bad value fails instantly instead of
-costing a 20-second Bluetooth connection. Writable: the DELTA 2's three ports, and all seven
-of the alternator's settings. The DELTA 2's charging speed, charge limits and energy backup stay read-only, even though the protocol library exposes them. After sending a switch command the collector waits for the unit to report the new state before answering, so the dashboard shows what the DELTA 2 actually did rather than what it was asked to do.
+costing a 20-second Bluetooth connection. Writable: the DELTA 2's three ports, AC charging and
+its speed, the two charge limits, energy backup and its reserve level, and all seven of the alternator's settings. Grid bypass stays read-only: the library ships it disabled, and its inverted sense makes a mis-click easy to misread. After sending a switch command the collector waits for the unit to report the new state before answering, so the dashboard shows what the DELTA 2 actually did rather than what it was asked to do.
 
 It records every value the unit reports - 51 fields per reading, of which about 43 are populated on this hardware:
 
@@ -192,7 +196,7 @@ It records every value the unit reports - 51 fields per reading, of which about 
 
 Fields the unit does not send arrive as `None` and are stored as NULL, so a blank column means "not reported", never "zero".
 
-Adding a field is a one-line change: add it to `Snapshot` in `app/main.py`. The SQLite schema, the migration for existing databases, and the insert statement are all derived from that dataclass. Field names match the eflib device attributes, with exceptions listed in `FIELD_SOURCES`.
+Adding a field is a one-line change: add it to `Snapshot` (or `AlternatorSnapshot`) in `app/models.py`. The SQLite schema, the migration for existing databases, and the insert statement are all derived from that dataclass. Field names match the eflib device attributes, with exceptions listed in each device's `sources` map in `app/devices.py`.
 
 Data is kept in a local SQLite file for 30 days.
 
@@ -250,6 +254,7 @@ So if the alternator is missing while the DELTA 2 is fine, close the phone app f
 - Add a remote relay that sends the gateway's stored readings to a personal server over HTTPS.
 - Add EcoFlow cloud as a separate adapter, retaining the local BLE collector as the primary source.
 - Add multiple device profiles, alerts, and cabinet-display mode.
+- Feed the readings to the van's touchscreen panel ([van-panel](https://github.com/Fildes3d3/van-panel)).
 
 ## Licence
 
